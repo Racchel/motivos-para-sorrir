@@ -8,6 +8,7 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   }
 `
 
@@ -22,11 +23,22 @@ const Container = styled.div`
 
 const TitleContainer = styled.div`
   width: 100%;
+  height: 100px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  bacl
+  padding: 20px;
+  line-height: 40px;
+  background-color: rgba(245 245 245	);
+  background-image: url('https://i.pinimg.com/originals/8f/fc/30/8ffc30bd71b68a21c1f3ea3f876d120c.png');
+  opacity: 0.2;
+`
+
+const TitleContent = styled.h1`
+  position: absolute;
+  top: 60px;
+  text-align: center;
 `
 
 const SearchContainer = styled.div`
@@ -34,12 +46,50 @@ const SearchContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  input {
+    width: 50px;
+    padding: 5px 7px;
+    margin: 0 10px;
+  }
+
+  button {
+    margin: 0 10px;
+    padding: 5px 7px;
+    border: none;
+    cursor: pointer;
+  }
+
+  button: hover {
+    background-color: rgba(0,0,0,0.3);
+  }
+`
+const Card = styled.div`
+  width: 500px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 8px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+`
+
+const Image = styled.div`
+  width: 100%;
+  height: 400px;
+  background-image: ${(props) => `url(${props.image})`};
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+`
+
+const TitleImage = styled.p`
+  font-size: 20px;
+  font-weight: bold;
+  padding-bottom: 5px;
 `
 
 const DogsContainer = styled.div`
 `
-
-
 
 export default function App() {
   const [start, setStart] = useState(false)
@@ -53,7 +103,9 @@ export default function App() {
     axios.get(`https://dog.ceo/api/breeds/image/random/${numberOfDogs}`)
       .then((response) => {
         setDogs(response.data.message)
-      }).catch((error) => console.log(error))
+      }).catch((error) => {
+        console.log(error)
+      })
 
     if (count === numberOfDogs) return pauseTimer()
 
@@ -67,8 +119,14 @@ export default function App() {
   }
 
   function startTimer() {
-    setStart(true)
-    intervalRef.current = setInterval(showTimer, 3000);
+
+    if (numberOfDogs !== 0 && !Array.isArray(numberOfDogs)) {
+      setStart(true)
+      intervalRef.current = setInterval(showTimer, 3000);
+    } else {
+      console.log('entrou no else')
+      alert('Escolhe ao menos um motivo, pessoinha')
+    }
   }
 
   function pauseTimer() {
@@ -80,10 +138,10 @@ export default function App() {
 
   function showDogs() {
     return start && (
-      <>
-        <h1>{`Motivo ${count + 1}`}</h1>
-        <img src={dogs[count]} alt='Doguinho' />
-      </>
+      <Card>
+        <TitleImage>Motivo {count + 1}</TitleImage>
+        <Image image={dogs[count]} />
+      </Card>
     )
   }
 
@@ -91,14 +149,22 @@ export default function App() {
     <>
       <GlobalStyle />
       <Container>
-        <TitleContainer>
-          <h1>DE 1 A 10: Quantos motivos você precisa pra sorrir hoje?</h1>
-          <h3>Preciso de {numberOfDogs} motivos, viu</h3>
-        </TitleContainer>
+        <TitleContainer />
+        <TitleContent>DE 0 A 10: Quantos motivos você precisa pra sorrir hoje?</TitleContent>
 
         <SearchContainer>
-          <input type="number" min={1} max={10} onChange={(e) => setNumberOfDogs(Number(e.target.value))} value={numberOfDogs} required />
-          <button onClick={startTimer} disabled={start}>Clique aqui e descubra!</button>
+          <form onSubmit={() => startTimer()}>
+            <label>Preciso de
+              <input type="number"
+                required
+                min={1} max={10}
+                value={numberOfDogs}
+                onChange={(e) => setNumberOfDogs(Number(e.target.value))}
+              />
+              motivos, viu!
+            </label>
+            <button onClick={() => startTimer()} disabled={start}> Quero ver!  </button>
+          </form>
         </SearchContainer>
 
         <DogsContainer>
